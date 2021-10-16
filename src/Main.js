@@ -1,111 +1,151 @@
-import React from 'react';
+import React, { Component } from 'react';
+import './App.css';
 
-const App = () => {
-
-    const [data, setData] = React.useState(['A', 'B', 'C', 'D']);
-    const [drageddata, setDragedata] = React.useState('');
-    const [selecteddata, setSelecteddata] = React.useState([]);
-
-
-
-    function handleDrag(e) {
-        let id = e.target.id;
-        // console.log(id)
-        // console.log(data[id])
-        setDragedata(data[id])
-        // setSelecteddata([...selecteddata, drageddata])
-
-
-
-        // drageddata = data[id]
+export default class AppDragDropDemo extends Component {
+    state = {
+        tasks: [
+            { name: "A", category: "boxone", bgcolor: "yellow" },
+            { name: "B", category: "boxone", bgcolor: "pink" },
+            { name: "C", category: "boxone", bgcolor: "green" },
+            { name: "D", category: "boxone", bgcolor: "skyblue" }
+        ]
     }
 
-    const selectcomponent = (e) => {
-
-
-        e.stopPropagation();
-        e.preventDefault();
-        console.log(selecteddata)
-        console.log(drageddata)
-
-
-
-
-        setSelecteddata([...selecteddata, drageddata])
-
-
-        console.log("tjis is ondrage")
-
-
-
-
-
+    onDragStart = (ev, id) => {
+        console.log('dragstart:', id);
+        ev.dataTransfer.setData("id", id);
     }
 
+    onDragOver = (ev) => {
+        ev.preventDefault();
+    }
+
+    onDrop = (ev, cat) => {
+        let id = ev.dataTransfer.getData("id");
+
+        let tasks = this.state.tasks.filter((task) => {
+            if (task.name == id) {
+                task.category = cat;
+            }
+            return task;
+        });
+
+        this.setState({
+            ...this.state,
+            tasks
+        });
+    }
+
+    render() {
+        var tasks = {
+            boxone: [],
+            boxtwo: []
+        }
+
+        this.state.tasks.forEach((t) => {
+            tasks[t.category].push(
+                <div key={t.name}
+                    onDragStart={(e) => this.onDragStart(e, t.name)}
+                    draggable
+                    className="draggable"
+                    style={{ backgroundColor: t.bgcolor, marginTop: 20, width: 50, height: 50, marginLeft: 20 }}
+                >
+                    {t.name}
+                </div>
+            );
+        });
 
 
-    return (
-        <div>
+        return (
+            <div >
 
-            <div style={{ backgroundColor: 'blue', height: 200, marginTop: 20, marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
-                <p>Drag Component from here</p>
+                <h1>React Drag and Drop Example</h1>
 
-                {
-                    data.map((item, index) => {
-                        return (<div id={index} draggable onDragStart={handleDrag} style={{ display: 'inline-block', height: 100, width: 100, marginTop: 20, backgroundColor: 'red', marginLeft: 20 }}>
-                            <p>{item}</p>
-                        </div>)
-                    })
-                }
+                <div style={{ marginTop: 20, marginLeft: '20%', marginRight: 20, width: 600, height: 400, backgroundColor: 'green' }}>
 
+                    <div
+                        style={{ float: 'left', marginTop: 20, marginLeft: 20, marginRight: 20, height: 300, width: 200, backgroundColor: 'red' }}
+                        onDragOver={(e) => this.onDragOver(e)}
+                        onDrop={(e) => { this.onDrop(e, "boxone") }}>
+                        <span>Box one</span>
 
 
-
+                        {tasks.boxone}
 
 
 
-            </div>
 
-            <div onDragLeave={selectcomponent} style={{ backgroundColor: 'green', height: 200, marginTop: 20, marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
 
-                Drop Component here
+                    </div>
 
-                <div>
-                    {
-                        selecteddata.map((item, index) => {
-                            return (<div style={{ display: 'inline-block', height: 100, width: 100, marginTop: 20, backgroundColor: 'red', marginLeft: 20 }}>
-                                {item}
-                            </div>)
-                        })
-                    }
+
+
+
+                    <div
+                        onDragOver={(e) => this.onDragOver(e)}
+
+                        onDrop={(e) => this.onDrop(e, "boxtwo")}
+                        style={{ marginTop: 20, marginLeft: 20, marginRight: 20, height: 300, width: 200, backgroundColor: 'red', float: 'right', }}>
+                        <span >Box two</span>
+
+                        {tasks.boxtwo}
+
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
                 </div>
 
+
+
+
+
+
+                <div style={{ marginLeft: '20%', marginTop: 20, backgroundColor: 'yellow', width: 600, height: 200, marginBottom: 20 }}>
+                    <p>Report Will generate here</p>
+
+                    <table>
+                        <th>Box one components</th>
+                        <th style={{ marginLeft: 50 }}>Box two components</th>
+                        <tr>
+                            <td>
+                                {
+                                    tasks.boxone.map((item, index) => {
+
+                                        return (<tr>{item.key}</tr>)
+                                    })
+                                }
+
+                            </td>
+                            <td>
+                                {
+                                    tasks.boxtwo.map((item, index) => {
+
+                                        return (<tr>{item.key}</tr>)
+                                    })
+                                }
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+
+
+
+
+
+
+
             </div>
-
-            <div style={{ backgroundColor: 'yellow', height: 200, marginTop: 20, marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
-
-                Report will generate here
-
-                <table style={{ marginLeft: 100 }}>
-                    <th >Selected Items</th>
-
-                    <tr>
-                        <td>
-                            {
-                                selecteddata.map((item, index) => { return (<tr>{item}</tr>) })
-                            }
-                        </td>
-                    </tr>
-
-                </table>
-
-            </div>
-        </div>
-    )
+        );
+    }
 }
-
-
-export default App;
-
-
-
